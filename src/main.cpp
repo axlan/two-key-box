@@ -4,8 +4,8 @@
 // 6 total pins
 // 0 is P0, 1 is P1, 4 is P4 - unlike the analog inputs,
 // for analog (PWM) outputs the pin number matches the port number.
-#define PIN_HALL_LEFT 3
-#define PIN_HALL_RIGHT 4
+#define PIN_HALL_LEFT 2
+#define PIN_HALL_RIGHT 3
 #define PIN_RELAY 5
 // P0, P1, and P4 are capable of hardware PWM (analogWrite).
 #define PIN_LEDS_RED 0
@@ -47,7 +47,7 @@ void loop() {
   CHSV color;
   switch (sensor_state)
   {
-  case 0:
+  case 3:
     color = ColorFade(pattern_index, pattern_index);
     break;
   case 1:
@@ -56,7 +56,7 @@ void loop() {
   case 2:
     color = ColorFade(HUE_YELLOW, pattern_index * 2);
     break;
-  case 3:
+  case 0:
     color = CHSV(HUE_GREEN, 255, 255);
     break;
   default:
