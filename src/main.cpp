@@ -6,6 +6,8 @@
 // for analog (PWM) outputs the pin number matches the port number.
 #define PIN_HALL_LEFT 2
 #define PIN_HALL_RIGHT 3
+// On Digispark clones Pin 5 may not be useable without changing
+// a fuse to switch it from a reset pin to GPIO.
 #define PIN_RELAY 5
 // P0, P1, and P4 are capable of hardware PWM (analogWrite).
 #define PIN_LEDS_RED 0
@@ -17,6 +19,13 @@
 
 int unlock_count = 0;
 uint8_t pattern_index = 0;
+
+enum {
+  BOTH = 0b00,
+  LEFT = 0b01,
+  RIGHT = 0b10,
+  NONE = 0b11
+};
 
 void setup() {
   pinMode(PIN_RELAY, OUTPUT);
@@ -32,6 +41,8 @@ CHSV ColorFade(uint8_t hue, uint8_t idx) {
   if (idx > 127) {
     color.val = 255 - idx;
   }
+  // Avoid the flash from the LED going fully off
+  color.val = max(color.val, 1);
   return color;
 }
 
@@ -47,27 +58,27 @@ void loop() {
   CHSV color;
   switch (sensor_state)
   {
-  case 3:
+  case NONE:
     color = ColorFade(pattern_index, pattern_index);
     break;
-  case 1:
+  case LEFT:
     color = ColorFade(HUE_PURPLE, pattern_index * 2);
     break;
-  case 2:
+  case RIGHT:
     color = ColorFade(HUE_YELLOW, pattern_index * 2);
     break;
-  case 0:
+  case BOTH:
     color = CHSV(HUE_GREEN, 255, 255);
     break;
   default:
     color = CHSV(HUE_RED, 255, 255);
   }
 
-  if (sensor_state != 3) {
+  if (sensor_state != BOTH) {
     unlock_count = 0;
   }
 
-  if (sensor_state != 3 || unlock_count >= UNLOCK_PERIODS) {
+  if (sensor_state != BOTH || unlock_count >= UNLOCK_PERIODS) {
     digitalWrite(PIN_RELAY, LOW);
   } else {
     digitalWrite(PIN_RELAY, HIGH);
